@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8" />
+    <title>OAuth Redirect</title>
+</head>
+
+<body>
+    <script>
+        (function () {
+
+            // Extract access token from hash or query string
+            function getAccessToken() {
+                const hash = new URLSearchParams(location.hash.substring(1));
+                const query = new URLSearchParams(location.search);
+                return hash.get("access_token") || query.get("accessToken");
+            }
+
+            // Detect which platform token belongs to
+            function getPlatform() {
+                const query = new URLSearchParams(location.search);
+                return query.get("platform") || query.get("source") || "zoho";
+            }
+
+            // Get parent window’s origin from query param
+            function getParentOrigin() {
+                const query = new URLSearchParams(location.search);
+                return query.get("origin");  // strict whitelisting
+            }
+
+            // Map platform → message type
+            function mapType(platform) {
+                const mapping = {
+                    zoho: "ZOHO_TOKEN",
+                    salesforce: "SF_TOKEN",
+                };
+                return mapping[platform] || "OAUTH_TOKEN";
+            }
+
+            const token = getAccessToken();
+            const platform = getPlatform();
+            const parentOrigin = getParentOrigin();
+
+            if (!token) {
+                console.error("No access token found");
+                window.close();
+                return;
+            }
+
+            if (!parentOrigin) {
+                console.error("Missing origin parameter. Token NOT sent.");
+                window.close();
+                return;
+            }
+
+            // Send token to parent window securely
+            window.opener.postMessage(
+                {
+                    type: mapType(platform),
+                    token
+                },
+                parentOrigin
+            );
+
+            window.close();
+        })();
+    </script>
+</body>
+
+</html>
