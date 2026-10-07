@@ -11,8 +11,8 @@ export async function fetchZohoUsers(accessToken, hireRocksOrgId) {
   const url = `${BASE_URL}/active_users`;
 
   const res = await axios.get(url, {
-    headers: {
-      "ZOHO-TOKEN": accessToken,
+    params: {
+      accessToken,
       hireRocksOrgId,
     },
   });
@@ -24,7 +24,7 @@ export async function fetchZohoUsers(accessToken, hireRocksOrgId) {
 }
 
 // Create HireRocks Users from Selected Zoho Users
-export async function sendZohoUsersToHireRocks(selectedIds) {
+export async function sendSelectedUsersToHireRocks(selectedIds) {
   const token = localStorage.getItem("access_token");
   const hireRocksOrgId = localStorage.getItem("hireRocksOrgId");
 

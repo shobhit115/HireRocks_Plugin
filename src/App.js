@@ -6,6 +6,8 @@ import Tracker from "./pages/Tracker";
 import EmployeeProfile from "./pages/EmployeeProfile";
 import OrgProfile from "./pages/OrgProfile";
 
+import ManageUsers from "./pages/ManageUsers";
+
 function App() {
   return (
     <Router>
@@ -16,6 +18,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardEmp />} />
           <Route path="/employeeProfile" element={<EmployeeProfile />} />
           <Route path="/orgProfile" element={<OrgProfile />} />
+          <Route path="/manageUsers" element={<ManageUsers />} />
         </Routes>
       </div>
     </Router>

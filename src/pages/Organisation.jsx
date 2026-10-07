@@ -15,13 +15,10 @@ import {
   storeSalesforceAccessToken,
   getSalesforceAccessToken,
 } from "../integrations/salesforce/salesforceAuth";
-import {
-  fetchSalesforceUsers,
-  sendSalesforceUsersToHireRocks,
-} from "../integrations/salesforce/salesforceApi";
+import { fetchSalesforceUsers } from "../integrations/salesforce/salesforceApi";
 import {
   fetchZohoUsers,
-  sendZohoUsersToHireRocks,
+  sendSelectedUsersToHireRocks,
 } from "../integrations/zoho/zohoApi.js";
 
 function Organization() {
@@ -119,9 +116,8 @@ function Organization() {
 
     const hireRocksOrgId = localStorage.getItem("hireRocksOrgId");
 
-    // --------------------------
     // Z O H O   I N T E G R A T I O N
-    // --------------------------
+
     if (platform === "zoho") {
       // 1) Listen for token from popup
       const detach = attachZohoTokenListener(async (token) => {
@@ -180,9 +176,8 @@ function Organization() {
       };
     }
 
-    // --------------------------
     // S A L E S F O R C E   I N T E G R A T I O N
-    // --------------------------
+
     if (platform === "salesforce") {
       // 1) Listen for token from popup
       const detach = attachSalesforceTokenListener(async (token) => {
@@ -193,7 +188,7 @@ function Organization() {
             storeSalesforceAccessToken(token);
           } catch (e) {}
 
-          sessionStorage.setItem("sf_access_token", token);
+          sessionStorage.setItem("salesforce_access_token", token);
 
           const raw = await fetchSalesforceUsers(token, hireRocksOrgId);
           const mapped = normalizeUsers(raw);
@@ -220,7 +215,7 @@ function Organization() {
             console.warn("Saved Salesforce token failed to fetch users:", err);
 
             // Clear expired token
-            sessionStorage.removeItem("sf_access_token");
+            sessionStorage.removeItem("salesforce_access_token");
             try {
               storeSalesforceAccessToken(null);
             } catch (e) {}
@@ -242,14 +237,14 @@ function Organization() {
     }
   }, [platform, step]);
 
-  const handleZohoUsers = async () => {
+  const handleDoneClick = async () => {
     try {
       setLoading(true);
 
       const selectedIds = selectedEmployees.map((e) => e.id);
 
-      const response = await sendZohoUsersToHireRocks(selectedIds);
-      alert("Zoho Users successfully created in HireRocks!");
+      const response = await sendSelectedUsersToHireRocks(selectedIds);
+      alert("Users successfully created in HireRocks!");
 
       console.log("Users created successfully:", response);
       setStep(5);
@@ -257,33 +252,6 @@ function Organization() {
       console.error("Error sending users:", error);
     } finally {
       setLoading(false);
-    }
-  };
-  const handleSalesforceUsers = async () => {
-    try {
-      setLoading(true);
-
-      const selectedIds = selectedEmployees.map((e) => e.id);
-
-      const response = await sendSalesforceUsersToHireRocks(selectedIds);
-      alert("Salesforce Users successfully created in HireRocks!");
-
-      console.log("Users created successfully:", response);
-      setStep(5);
-    } catch (error) {
-      console.error("Error sending users:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDoneClick = () => {
-    if (platform === "zoho") {
-      handleZohoUsers();
-    } else if (platform === "salesforce") {
-      handleSalesforceUsers();
-    } else {
-      console.warn("Unknown platform. No handler executed.");
     }
   };
 
@@ -811,4 +779,4 @@ function Organization() {
   );
 }
 
-export default Organization;    
+export default Organization;

@@ -48,6 +48,9 @@ function Tracker() {
       <Menu.Item key="profile" onClick={() => navigate("/orgProfile")}>
         Profile
       </Menu.Item>
+      <Menu.Item key="manageUsers" onClick={() => navigate("/manageUsers")}>
+        Manage Users
+      </Menu.Item>
       <Menu.Item key="logout" onClick={handleLogout}>
         Logout
       </Menu.Item>

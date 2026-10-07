@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@salesforce/canvas-js-sdk": "^1.41.0",
+    "@sentry/react": "^11.4.0",
     "antd": "^5.23.2",
     "axios": "^1.7.9",
     "cra-template": "1.2.0",
