@@ -20,6 +20,7 @@ import {
   fetchZohoUsers,
   sendSelectedUsersToHireRocks,
 } from "../integrations/zoho/zohoApi.js";
+import logger from "../telemetry/logger";
 
 function Organization() {
   const navigate = useNavigate();
@@ -133,8 +134,13 @@ function Organization() {
           const raw = await fetchZohoUsers(token, hireRocksOrgId);
           const mapped = normalizeUsers(raw);
           setEmployeesList(mapped);
-        } catch (err) {
-          console.error("Zoho token handler error:", err);
+        } catch (error) {
+          logger.error(error,{
+            platform: platform,
+            operation: "zoho_fetch_users",
+            orgId: hireRocksOrgId,
+          })
+          console.error("Zoho token handler error:", error);
           alert("Failed to fetch Zoho users.");
         } finally {
           setLoading(false);
@@ -152,6 +158,7 @@ function Organization() {
             setEmployeesList(mapped);
           })
           .catch((err) => {
+
             console.warn("Saved Zoho token failed to fetch users:", err);
 
             // Clear expired token
@@ -193,8 +200,13 @@ function Organization() {
           const raw = await fetchSalesforceUsers(token, hireRocksOrgId);
           const mapped = normalizeUsers(raw);
           setEmployeesList(mapped);
-        } catch (err) {
-          console.error("Salesforce token handler error:", err);
+        } catch (error) {
+          logger.error(error,{
+            platform: platform,
+            operation: "salesforce_fetch_users",
+            orgId: localStorage.getItem("hireRocksOrgId"),
+          })
+          console.error("Salesforce token handler error:", error);
           alert("Failed to fetch Salesforce users.");
         } finally {
           setLoading(false);
@@ -249,6 +261,12 @@ function Organization() {
       console.log("Users created successfully:", response);
       setStep(5);
     } catch (error) {
+      logger.error(error,{
+            platform: platform,
+            operation: "hirerocks_send_users",
+            orgId: localStorage.getItem("hireRocksOrgId"),
+            selectedUserCount: selectedEmployees.length,
+          })
       console.error("Error sending users:", error);
     } finally {
       setLoading(false);
@@ -285,7 +303,10 @@ function Organization() {
         alert("Login failed. Please try again.");
       }
     } catch (error) {
-      // console.error("Error viewing organization:", error);
+      logger.error(error,{
+        operation:"hirerocks_login",
+        platform,
+      })
       setErrors({ organizationError: "Invalid Credentials!" });
     } finally {
       setLoading(false);
@@ -348,6 +369,10 @@ function Organization() {
         alert("Invalid OTP. Please try again.");
       }
     } catch (error) {
+      logger.error(error,{
+        operation:"verify_email_otp",
+        platform,
+      })
       setLoading(false);
       console.error("Error verifying OTP:", error);
       alert("Something went wrong. Please try again.");
@@ -404,6 +429,10 @@ function Organization() {
           alert("Organization creation failed. Please try again.");
         }
       } catch (error) {
+        logger.error(error,{
+          operation: "create_organization",
+          platform,
+        })
         console.error("Error creating organization:", error);
         setorgError(true);
       } finally {
@@ -464,6 +493,10 @@ function Organization() {
           alert("Failed to add employee.");
         }
       } catch (error) {
+        logger.error(error,{
+          operation: "add_employee",
+          platform,
+        })
         console.error("Error adding employee:", error);
         alert("An error occurred while adding the employee.");
       }
